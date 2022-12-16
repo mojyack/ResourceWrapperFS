@@ -1,4 +1,6 @@
 #pragma once
+#include <array>
+
 #include <FLAC++/decoder.h>
 
 #include "../../memfd.hpp"
