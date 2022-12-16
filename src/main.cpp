@@ -197,6 +197,11 @@ auto getattr(const char* const path, Stat* const stbuf, fuse_file_info* /*fi*/) 
         } else {
             return -errno;
         }
+
+        // mark symlink as regular file
+        if(stbuf->st_mode & S_IFLNK) {
+            stbuf->st_mode = (stbuf->st_mode & 0777) | S_IFREG;
+        }
     }
 
     return res == -1 ? -errno : 0;
@@ -212,7 +217,18 @@ auto access(const char* const path, const int mask) -> int {
 auto readlink(const char* const path, char* const buf, const size_t size) -> int {
     const auto abs      = root + path;
     const auto new_path = to_real_path(abs);
-    const auto res      = ::readlink(new_path.cstr(), buf, size - 1);
+
+    if(new_path.view() != abs) {
+        // this is phantom file
+        // ignore symlink
+        const auto filename = std::filesystem::path(abs).filename().string();
+        const auto copy_len = std::min(filename.size(), size - 1);
+        memcpy(buf, filename.data(), copy_len);
+        buf[copy_len] = '\0';
+        return 0;
+    }
+
+    const auto res = ::readlink(new_path.cstr(), buf, size - 1);
     if(res == -1) {
         return -errno;
     }
