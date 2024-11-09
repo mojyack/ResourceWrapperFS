@@ -33,7 +33,7 @@ class Driver {
 
         auto       files = std::vector<std::string>();
         const auto path  = std::filesystem::path(path_str);
-        for(const auto ext : {".jpg", ".png", ".bmp"}) {
+        for(const auto ext : {".bmp", ".png", ".jpg"}) {
             auto file = std::filesystem::path(path).replace_extension(ext);
             files.emplace_back(file.string());
         }
