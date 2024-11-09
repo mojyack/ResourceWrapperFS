@@ -240,7 +240,7 @@ auto readdir(const char* const path, void* const buf, const fuse_fill_dir_t fill
     const auto abs = root + path;
     const auto dir = opendir(abs.data());
     if(dir == NULL) {
-        return errno;
+        return -errno;
     }
 
     auto de = (dirent*)(nullptr);
